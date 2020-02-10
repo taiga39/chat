@@ -11,5 +11,5 @@ app.listen(app.get('port'), ()=>{ console.log("Node app is running at localhost:
 
 app.use(log.access.add);
 
-app.get('/log/usage', (req, res)=>{ res.send(log.usage.get()) }); 
-app.get('/log/access', (req, res)=>{ res.send(log.access.get()) }); 
+app.get('./src/log/usage', (req, res)=>{ res.send(log.usage.get()) }); 
+app.get('./src/log/access', (req, res)=>{ res.send(log.access.get()) }); 
