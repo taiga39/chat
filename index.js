@@ -1,36 +1,34 @@
-// const path=require('path');
-// const express=require('express');
-// const app=express();
+const path=require('path');
+const app=express();
+const cookieParser=require('cookie-parser');
+const bodyParser=require('body-parser');
 
+// noWarning: true の設定がないと落ちる。databaseURLはherokuでは環境変数に入っている
+const pgPromise=require('pg-promise')({ noWarnings: true });
+const databaseURL=process.env.DATABASE_URL;
 
-// app.set('port', process.env.PORT || 5050);
+const database=pgPromise(databaseURL);
 
-// app.use(express.static(path.join(__dirname, 'public')));
-
-// app.listen(app.get('port'), ()=>{ console.log("Node app is running at localhost:" + app.get('port')); });
-
-// app.use(log.access.add);
-
-// app.get('/log/usage', (req, res)=>{ res.send(log.usage.get()) }); 
-// app.get('/log/access', (req, res)=>{ res.send(log.access.get()) }); 
-var express    = require('express');
-var app        = express();
-var bodyParser = require('body-parser');
-
-//body-parserの設定
+app.set('port', process.env.PORT || 5050);
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(log.access.add);
+app.use(cookieParser());
+// bodyParserの設定 (Json形式用)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-var port = process.env.PORT || 3000; // port番号を指定
+app.post('/login', async (req, res)=>{
+    const user= await database.any('select * from loginUser').filter(a=> a.name===req.body.name);
 
-
-// GET http://localhost:3000/api/v1/
-app.get('/api/v1/',function(req,res){
-    res.json({
-        message:"Hello,world"
-    });
+    if( user.length!==1 || user[0].password!==req.body.password ) res.sendStatus(401);
+    else res.send('OK');
 });
 
-//サーバ起動
-app.listen(port);
-console.log('listen on port ' + port);
+app.get('/status.html', async (req, res)=>{
+    const user= await database.any('select * from loginUser').filter(a=> a.name===req.body.name);
+
+    if( user.length!==1 || user[0].password!==req.cookies.password ){
+        res.sendFile(path.join(__dirname, '/private/login.html')); 
+    }
+    else{ res.sendFile(path.join(__dirname, '/private/user_only.html')); }
+});
