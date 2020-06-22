@@ -42,3 +42,9 @@ app.ws('/', (ws, req) => {
 app.listen(app.get('port'), () => {
   console.log('Server listening on port %s', app.get('port'));
 });
+
+app.get("/profile", function(request, respond){
+  var josn = [{1:2},{3:4}]
+  respond.json(josn)
+  // respond.send("My name is Kibinag0. I'm from Japan.");
+});
