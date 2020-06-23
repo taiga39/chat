@@ -1,50 +1,20 @@
-const express     = require('express');
-const app         = express();
-const expressWs   = require('express-ws')(app);
-const morgan      = require('morgan');
-const compression = require('compression');
-const serveStatic = require('serve-static');
-const basicAuth   = require('basic-auth-connect');
+var express = require('express');
+var app = express();
+var http = require('http').Server(app);
+const io = require('socket.io')(http);
+const PORT = process.env.PORT || 7000;
 
-const user = process.env.USER;
-const pass = process.env.PASS;
-
-let connects = [];
-
-app.set('port', process.env.PORT || 3000);
-
-if (user && pass) {
-  app.use(basicAuth(user, pass));
-}
-
-app.use(morgan('dev'));
-app.use(compression());
-app.use(serveStatic(`${__dirname}/public`));
-
-app.ws('/', (ws, req) => {
-  connects.push(ws);
-
-  ws.on('message', message => {
-    console.log('Received -', message);
-
-    connects.forEach(socket => {
-      socket.send(message);
-    });
-  });
-
-  ws.on('close', () => {
-    connects = connects.filter(conn => {
-      return (conn === ws) ? false : true;
-    });
-  });
+app.get('/' , function(req, res){
+    res.sendFile(__dirname+'/public/index.html');
 });
 
-app.listen(app.get('port'), () => {
-  console.log('Server listening on port %s', app.get('port'));
+io.on('connection',function(socket){
+    socket.on('chat',function(msg){
+        console.log('message: ' + msg);
+        io.emit('chat', msg);
+    });
 });
 
-app.get("/profile", function(request, respond){
-  var josn = [{1:2},{3:4}]
-  respond.json(josn)
-  // respond.send("My name is Kibinag0. I'm from Japan.");
+http.listen(PORT, function(){
+    console.log('server listening. Port:' + PORT);
 });
