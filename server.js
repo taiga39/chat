@@ -9,12 +9,20 @@ app.get('/' , function(req, res){
 });
 
 io.on('connection',function(socket){
-    socket.on('chat',function(msg){
-        console.log('message: ' + msg);
-        io.emit('chat', msg);
-    });
+  socket.on('chat',function(msg){
+      console.log('message: ' + msg);
+      // socket.join('testroom')
+      io.emit('chat', msg);
+      // io.to("test").emit('chat', msg);
+  });
+  socket.on('room',function(msg){
+    socket.join('testroom')
+    io.to("testroom").emit('chat', "入室したよ");
 });
-
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+});
 http.listen(PORT, function(){
     console.log('server listening. Port:' + PORT);
 });

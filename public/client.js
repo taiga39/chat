@@ -19,15 +19,6 @@
     return false;
   }
 
-  ws.onmessage = function(msg) {
-    var response = msg.data;
-    var messageList = document.querySelector('.messages');
-    var li = document.createElement('li');
-    li.textContent = response;
-    res = JSON.parse(response)
-    console.log(res.messages)
-    messageList.appendChild(li);
-  }
 
   socket.on("msg",function(msg) {
     var response = msg.data;
