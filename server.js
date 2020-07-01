@@ -37,7 +37,7 @@ io.on('connection',function(socket){
   });
   socket.on('room',function(msg){
     socket.join('testroom')
-    io.to("testroom").emit('chat', "入室したよ");
+    io.to("testroom").emit('chat', "入室したよん");
 });
   socket.on('disconnect', () => {
     console.log('user disconnected');
